@@ -3,7 +3,7 @@ import json
 import os
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
-TTL = 60 * 60 * 2
+TTL = 60 * 60 * 2  # 2 horas
 
 def get_redis():
     return redis.from_url(REDIS_URL, decode_responses=True)
@@ -35,17 +35,15 @@ async def clear_session(phone: str):
         print(f"Redis error clear_session: {e}")
 
 async def save_lid_mapping(lid: str, real_jid: str):
-    """Guarda mapeo de LID interno a número real de WhatsApp"""
     try:
         r = get_redis()
-        await r.set(f"lid:{lid}", real_jid, ex=60 * 60 * 24 * 7)  # 7 días
+        await r.set(f"lid:{lid}", real_jid, ex=60 * 60 * 24 * 30)
         print(f"LID mapeado: {lid} → {real_jid}")
         await r.aclose()
     except Exception as e:
         print(f"Redis error save_lid_mapping: {e}")
 
 async def get_phone_from_lid(lid: str) -> str:
-    """Obtiene el número real a partir de un LID interno"""
     try:
         r = get_redis()
         result = await r.get(f"lid:{lid}")
