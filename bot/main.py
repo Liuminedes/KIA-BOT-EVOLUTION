@@ -1,10 +1,7 @@
 from fastapi import FastAPI, Request
 from flow import handle_message
-import os
 
 app = FastAPI()
-
-BRYAN_NUMBER = os.getenv("BRYAN_NUMBER", "573007271627")
 
 @app.get("/")
 def health():
@@ -21,20 +18,13 @@ async def webhook(request: Request):
     data = body.get("data", {})
     key = data.get("key", {})
 
-    # Ignorar mensajes enviados por el bot
     if key.get("fromMe"):
         return {"status": "ignored"}
 
     message = data.get("message", {})
 
-    # El número del cliente viene en key.remoteJid cuando fromMe es false
-    # y el mensaje viene de afuera hacia Bryan
-    remote_jid = key.get("remoteJid", "")
-    phone = remote_jid.split("@")[0]
-
-    # Ignorar si es el propio número de Bryan
-    if phone == BRYAN_NUMBER or phone == BRYAN_NUMBER.replace("57", "", 1):
-        return {"status": "ignored"}
+    # Pasar el remoteJid completo (puede ser @lid o @s.whatsapp.net)
+    phone = key.get("remoteJid", "")
 
     text = (
         message.get("conversation")
@@ -42,7 +32,7 @@ async def webhook(request: Request):
         or ""
     ).strip()
 
-    print("PHONE FINAL:", phone)
+    print("PHONE RAW:", phone)
     print("TEXT:", text)
 
     if phone and text:
