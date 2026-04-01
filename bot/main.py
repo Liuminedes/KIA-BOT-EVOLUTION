@@ -13,6 +13,8 @@ def health():
 @app.post("/webhook")
 async def webhook(request: Request):
     body = await request.json()
+    import json
+    print("FULL BODY:", json.dumps(body, indent=2, default=str))
     event = body.get("event", "")
 
     # Capturar mapeo LID → número real
