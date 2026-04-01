@@ -11,11 +11,7 @@ def health():
 async def webhook(request: Request):
     body = await request.json()
 
-    # Log temporal para ver la estructura completa
-    print("WEBHOOK BODY:", body)
-
     event = body.get("event", "")
-    print("EVENT:", event)
 
     if event not in ("messages.upsert", "MESSAGES_UPSERT"):
         return {"status": "ignored"}
@@ -23,21 +19,19 @@ async def webhook(request: Request):
     data = body.get("data", {})
     key = data.get("key", {})
 
-    # Ignorar mensajes propios del bot
     if key.get("fromMe"):
         return {"status": "ignored"}
 
     message = data.get("message", {})
-    phone = key.get("remoteJid", "").replace("@s.whatsapp.net", "")
+
+    # Fix: tomar solo la parte antes del @ para obtener el número limpio
+    phone = key.get("remoteJid", "").split("@")[0]
 
     text = (
         message.get("conversation")
         or message.get("extendedTextMessage", {}).get("text", "")
         or ""
     ).strip()
-
-    print("PHONE:", phone)
-    print("TEXT:", text)
 
     if phone and text:
         await handle_message(phone, text)
