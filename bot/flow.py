@@ -45,7 +45,7 @@ MESSAGES = {
         "✅ ¡Listo, *{nombre}*!\n\n"
         "Tu información fue enviada a *Bryan Losada* quien te "
         "contactará muy pronto para brindarte una atención "
-        "personalizada y resolver todas tus dudas. 🤝\n\n"
+        "personalizada. 🤝\n\n"
         "¡Gracias por tu interés en *KIA*! 🚗💨"
     ),
 }
@@ -73,20 +73,25 @@ PURCHASE_MAP = {
     "4": "Por decidir",
 }
 
-async def handle_message(phone: str, text: str):
+async def handle_message(phone: str, text: str, push_name: str = ""):
     text = text.strip()
     session = await get_session(phone)
     step = session.get("step", "start")
     data = session.get("data", {})
 
-    # Número limpio para mostrar en el lead
-    phone_display = phone.split("@")[0]
+    print(f"[FLOW] phone={phone} step={step} text={text[:30]} pushName={push_name}")
+
+    phone_display = phone.replace("@lid", "").replace("@s.whatsapp.net", "")
 
     if step == "start":
         await send_text(phone, MESSAGES["start"])
         await save_session(phone, {
             "step": "nombre",
-            "data": {"phone": phone, "phone_display": phone_display}
+            "data": {
+                "phone": phone,
+                "phone_display": phone_display,
+                "pushName": push_name
+            }
         })
 
     elif step == "nombre":
