@@ -11,7 +11,12 @@ def health():
 async def webhook(request: Request):
     body = await request.json()
 
+    # Log temporal para ver la estructura completa
+    print("WEBHOOK BODY:", body)
+
     event = body.get("event", "")
+    print("EVENT:", event)
+
     if event not in ("messages.upsert", "MESSAGES_UPSERT"):
         return {"status": "ignored"}
 
@@ -30,6 +35,9 @@ async def webhook(request: Request):
         or message.get("extendedTextMessage", {}).get("text", "")
         or ""
     ).strip()
+
+    print("PHONE:", phone)
+    print("TEXT:", text)
 
     if phone and text:
         await handle_message(phone, text)
