@@ -12,7 +12,7 @@ async def webhook(request: Request):
     body = await request.json()
 
     event = body.get("event", "")
-    if event != "messages.upsert":
+    if event not in ("messages.upsert", "MESSAGES_UPSERT"):
         return {"status": "ignored"}
 
     data = body.get("data", {})
