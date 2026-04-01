@@ -24,14 +24,24 @@ async def webhook(request: Request):
 
     message = data.get("message", {})
 
-    # Fix: tomar solo la parte antes del @ para obtener el número limpio
-    phone = key.get("remoteJid", "").split("@")[0]
+    # Parsear el número correctamente
+    remote_jid = key.get("remoteJid", "")
+    phone = remote_jid.split("@")[0]
+
+    # Si el número no empieza con 57, puede ser un JID interno
+    # usamos el campo sender como fallback
+    if not phone.startswith("57"):
+        sender = body.get("sender", "") or data.get("sender", "")
+        phone = sender.split("@")[0] if sender else phone
 
     text = (
         message.get("conversation")
         or message.get("extendedTextMessage", {}).get("text", "")
         or ""
     ).strip()
+
+    print("PHONE FINAL:", phone)
+    print("TEXT:", text)
 
     if phone and text:
         await handle_message(phone, text)

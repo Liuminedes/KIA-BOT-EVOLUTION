@@ -12,8 +12,11 @@ HEADERS = {
 
 async def send_text(to: str, text: str):
     url = f"{BASE_URL}/message/sendText/{INSTANCE}"
+    # Evolution v1.8.2 necesita el número en formato internacional sin +
+    # Si el número ya tiene @s.whatsapp.net lo limpiamos
+    number = to.replace("@s.whatsapp.net", "").replace("@g.us", "")
     payload = {
-        "number": to,
+        "number": number,
         "textMessage": {
             "text": text
         }
