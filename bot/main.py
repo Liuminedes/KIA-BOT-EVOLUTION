@@ -4,7 +4,7 @@ import os
 
 app = FastAPI()
 
-BRYAN_NUMBER = os.getenv("BRYAN_NUMBER", "").replace("+", "")
+BRYAN_NUMBER = os.getenv("BRYAN_NUMBER", "573007271627")
 
 @app.get("/")
 def health():
@@ -21,17 +21,19 @@ async def webhook(request: Request):
     data = body.get("data", {})
     key = data.get("key", {})
 
-    # Ignorar mensajes propios
+    # Ignorar mensajes enviados por el bot
     if key.get("fromMe"):
         return {"status": "ignored"}
 
     message = data.get("message", {})
-    sender = body.get("sender", "")
-    phone = sender.split("@")[0]
 
-    # Ignorar si el sender es el número de Bryan (el vinculado)
-    if phone == BRYAN_NUMBER or phone == BRYAN_NUMBER.lstrip("57"):
-        print("IGNORADO: mensaje del número vinculado")
+    # El número del cliente viene en key.remoteJid cuando fromMe es false
+    # y el mensaje viene de afuera hacia Bryan
+    remote_jid = key.get("remoteJid", "")
+    phone = remote_jid.split("@")[0]
+
+    # Ignorar si es el propio número de Bryan
+    if phone == BRYAN_NUMBER or phone == BRYAN_NUMBER.replace("57", "", 1):
         return {"status": "ignored"}
 
     text = (
