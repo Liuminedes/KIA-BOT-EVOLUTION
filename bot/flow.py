@@ -67,16 +67,14 @@ async def handle_message(phone: str, text: str):
     step = session.get("step", "start")
     data = session.get("data", {})
 
-    # Primer contacto
     if step == "start":
         await send_text(phone, MESSAGES["start"])
-        await save_session(phone, {"step": "nombre", "data": {}})
+        await save_session(phone, {"step": "nombre", "data": {"phone": phone}})
         return
 
-    # Guardar respuesta del paso actual
     if step == "nombre":
         data["nombre"] = text
-        data["phone"] = phone
+        data["phone"] = phone  # JID completo guardado
         msg = MESSAGES["nombre"].format(nombre=text)
         await send_text(phone, msg)
         await save_session(phone, {"step": "interes", "data": data})
@@ -93,11 +91,7 @@ async def handle_message(phone: str, text: str):
 
     elif step == "comentario":
         data["comentario"] = text if text.lower() != "no" else "Sin comentarios"
-
-        # Notificar a Bryan
         await send_lead_to_bryan(BRYAN_NUMBER, data)
-
-        # Despedida al cliente
         msg = MESSAGES["done"].format(nombre=data.get("nombre", ""))
         await send_text(phone, msg)
         await clear_session(phone)

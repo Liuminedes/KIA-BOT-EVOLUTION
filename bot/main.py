@@ -23,8 +23,12 @@ async def webhook(request: Request):
 
     message = data.get("message", {})
 
-    # Pasar el remoteJid completo (puede ser @lid o @s.whatsapp.net)
+    # Usar el remoteJid completo — puede ser @lid o @s.whatsapp.net
     phone = key.get("remoteJid", "")
+
+    # Ignorar grupos
+    if "@g.us" in phone:
+        return {"status": "ignored"}
 
     text = (
         message.get("conversation")

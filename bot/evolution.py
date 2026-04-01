@@ -12,19 +12,11 @@ HEADERS = {
 
 async def send_text(to: str, text: str):
     url = f"{BASE_URL}/message/sendText/{INSTANCE}"
-    
-    # Si tiene @lid o @s.whatsapp.net, enviamos el JID completo
-    # Si es solo número, lo dejamos como está
-    if "@" in to:
-        number = to  # JID completo
-    else:
-        number = to  # número limpio
-    
     payload = {
-        "number": number,
+        "number": to,  # JID completo: puede ser @lid, @s.whatsapp.net, o número limpio
         "textMessage": {"text": text}
     }
-    async with httpx.AsyncClient(timeout=10) as client:
+    async with httpx.AsyncClient(timeout=15) as client:
         r = await client.post(url, json=payload, headers=HEADERS)
         print("SEND RESPONSE:", r.status_code, r.text)
         return r.json()

@@ -3,7 +3,7 @@ import json
 import os
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
-TTL = 60 * 60
+TTL = 60 * 60 * 2  # 2 horas
 
 def get_redis():
     return redis.from_url(REDIS_URL, decode_responses=True)
