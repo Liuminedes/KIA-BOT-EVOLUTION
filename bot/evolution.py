@@ -1,16 +1,26 @@
 import httpx
-from config import EVOLUTION_URL, EVOLUTION_API_KEY, EVOLUTION_INSTANCE
+import os
+
+BASE_URL = os.getenv("EVOLUTION_URL")
+API_KEY = os.getenv("EVOLUTION_API_KEY")
+INSTANCE = os.getenv("EVOLUTION_INSTANCE", "kia-bot")
 
 HEADERS = {
-    "apikey": EVOLUTION_API_KEY,
+    "apikey": API_KEY,
     "Content-Type": "application/json"
 }
 
 async def send_text(to: str, text: str):
-    url = f"{EVOLUTION_URL}/message/sendText/{EVOLUTION_INSTANCE}"
-    payload = {"number": to, "text": text}
+    url = f"{BASE_URL}/message/sendText/{INSTANCE}"
+    payload = {
+        "number": to,
+        "textMessage": {
+            "text": text
+        }
+    }
     async with httpx.AsyncClient(timeout=10) as client:
         r = await client.post(url, json=payload, headers=HEADERS)
+        print("SEND RESPONSE:", r.status_code, r.text)
         return r.json()
 
 async def send_lead_to_bryan(bryan: str, lead: dict):
